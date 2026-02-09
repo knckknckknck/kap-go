@@ -23,8 +23,6 @@ linters:
     - whitespace
 
   settings:
-    errname:
-      no-prefix: false
     revive:
       rules:
         - name: blank-imports
