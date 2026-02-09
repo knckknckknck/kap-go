@@ -15,7 +15,7 @@ type Disclosure struct {
 	SubReportIDs          []string `json:"subReportIds"`
 	Title                 string   `json:"title"`
 	CompanyID             string   `json:"companyId"`
-	FundID                int      `json:"fundId,omitempty"`
+	FundID                string   `json:"fundId,omitempty"`
 	FundCode              string   `json:"fundCode,omitempty"`
 	AcceptedDataFileTypes []string `json:"acceptedDataFileTypes"`
 }
@@ -121,24 +121,28 @@ type Member struct {
 
 // Security holds security information for a listed company.
 type Security struct {
-	ISIN              string `json:"isin"`
-	ISINDesc          string `json:"isinDesc"`
-	BorsaKodu         string `json:"borsaKodu"`
-	TakasKodu         string `json:"takasKodu"`
-	TertipGroup       string `json:"tertipGroup"`
-	Capital           string `json:"capital"`
-	CurrentCapital    string `json:"currentCapital"`
-	GroupCode         string `json:"groupCode"`
-	GroupCodeDesc     string `json:"groupCodeDesc"`
-	BorsadaIslemeAcik string `json:"borsadaIslemeAcik"`
+	ISIN              string  `json:"isin"`
+	ISINDesc          string  `json:"isinDesc"`
+	BorsaKodu         string  `json:"borsaKodu"`
+	TakasKodu         string  `json:"takasKodu"`
+	TertipGroup       string  `json:"tertipGroup"`
+	Capital           float64 `json:"capital"`
+	CurrentCapital    float64 `json:"currentCapital"`
+	GroupCode         string  `json:"groupCode"`
+	GroupCodeDesc     string  `json:"groupCodeDesc"`
+	BorsadaIslemeAcik bool    `json:"borsadaIslemeAcik"`
 }
 
-// CompanyInfo holds summary information about a company.
+// CompanyInfo holds summary information about a company in the member
+// securities response.
 type CompanyInfo struct {
-	ID         string `json:"id"`
-	Title      string `json:"title"`
-	StockCode  string `json:"stockCode"`
-	MemberType string `json:"memberType"`
+	ID                     string  `json:"id"`
+	MemberType             string  `json:"memberType"`
+	SermayeSistemi         string  `json:"sermayeSistemi,omitempty"`
+	KayitliSermayeTavani   float64 `json:"kayitliSermayeTavani,omitempty"`
+	KstSonGecerlilikTarihi string  `json:"kstSonGecerlilikTarihi,omitempty"`
+	SirketUnvan            string  `json:"sirketUnvan,omitempty"`
+	MksMbrID               string  `json:"mksMbrId,omitempty"`
 }
 
 // MemberSecurities pairs a company with its securities.
