@@ -1,43 +1,95 @@
-# KAP Go Client - RESTful APIs
-[![rest-docs][rest-doc-img]][rest-doc]
+# kap-go
 
-Go client for KAP (Public Disclosure Platform) — fetch public disclosures from Borsa Istanbul listed companies
+Go client for the [KAP (Public Disclosure Platform)](https://www.kap.org.tr/) REST API operated by MKK. Fetch public disclosures, financial reports, and corporate actions for Borsa Istanbul listed companies.
 
 **Note:** API last changed on March 27, 2025. For details, please refer to the [official documentation](https://apiportal.mkk.com.tr/).
 
-## Getting Started
-
-First, make a new directory for your project and navigate into it:
+## Installation
 
 ```bash
-mkdir myproject && cd myproject
+go get github.com/knckknckknck/kap-go
 ```
 
-Next, initialize a new module for dependency management. This creates a go.mod file to track your dependencies:
+## Quick Start
 
-```bash
-go mod init example
+### Production
+
+```go
+package main
+
+import (
+	"context"
+	"fmt"
+	"log"
+	"os"
+
+	"github.com/knckknckknck/kap-go"
+)
+
+func main() {
+	client := kap.NewClient(os.Getenv("MKK_API_KEY"))
+
+	ctx := context.Background()
+
+	// Generate a bearer token (valid for 24 hours).
+	_, err := client.GenerateToken(ctx)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Fetch disclosures starting from index 1092228.
+	disclosures, err := client.Disclosures(ctx, 1092228, nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+	for _, d := range disclosures {
+		fmt.Println(d.DisclosureIndex, d.Title)
+	}
+}
 ```
 
-Then, create a main.go file. For quick start, you can find example code snippets that demonstrate connecting the REST APIs. Here's an example that fetches the ...
+### Test Environment
 
-Please remember to set your MKK API key, which you can find on the [MKK API Portal](https://apiportal.mkk.com.tr/), in the environment variable MKK_API_KEY. Or, as a less secure option, by hardcoding it in your code. But please note that hardcoding the API key can be risky if your code is shared or exposed. You can configure the environment variable by running:
-
-```bash
-export MKK_API_KEY=your_api_key_here
+```go
+client := kap.NewClient("",
+	kap.WithBasicAuth("user", "pass"),
+	kap.WithBaseURL("https://apigwdev.mkk.com.tr"),
+)
 ```
 
-Then, run go mod tidy to automatically download and install the necessary dependencies. This command ensures your go.mod file reflects all dependencies used in your project:
+## Error Handling
 
-```bash
-go mod tidy
+All API errors are returned as `*kap.APIError` and can be matched against sentinel errors:
+
+```go
+import "errors"
+
+_, err := client.Disclosures(ctx, 1092228, nil)
+if errors.Is(err, kap.ErrTokenExpired) {
+	// Re-generate token and retry.
+	client.GenerateToken(ctx)
+}
+if errors.Is(err, kap.ErrUnauthorized) {
+	// Check API key or permissions.
+}
 ```
 
-Finally, execute your application:
+Available sentinel errors: `ErrNoPermission`, `ErrUnauthorized`, `ErrIPRestricted`, `ErrInvalidToken`, `ErrIPVerification`, `ErrTokenExpired`, `ErrTokenValidation`, `ErrNotFound`, `ErrUnexpectedStatus`.
 
-```bash
-go run main.go
+## Configuration Options
+
+```go
+kap.WithBaseURL(url)           // Set API base URL
+kap.WithTimeout(duration)      // Set HTTP timeout
+kap.WithHTTPClient(client)     // Use custom http.Client
+kap.WithToken(token)           // Set pre-existing bearer token
+kap.WithBasicAuth(user, pass)  // Use basic auth (test environment)
 ```
+
+## Documentation
+
+- [API Reference (docs/kap-rest-api.md)](docs/kap-rest-api.md)
+- [Go Package Documentation](https://pkg.go.dev/github.com/knckknckknck/kap-go)
 
 ## Contributing
 
